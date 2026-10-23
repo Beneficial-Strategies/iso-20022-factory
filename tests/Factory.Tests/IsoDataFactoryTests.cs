@@ -180,8 +180,10 @@ public class IsoDataFactoryTests
             .Select(a => a.Name)
             .ToList();
 
-        Assert.Contains("BeneficialStrategies.Iso20022.Primitives", references);
-        Assert.DoesNotContain(references, name => name!.Contains("Records") || name.Contains("Interfaces") || name.Contains("Messages"));
+        // of the family, only Primitives (a Microsoft package such as Bcl.AsyncInterfaces may appear on .NET Framework)
+        Assert.Equal(
+            ["BeneficialStrategies.Iso20022.Primitives"],
+            references.Where(name => name!.StartsWith("BeneficialStrategies.")).ToList());
     }
 
     [Fact]
