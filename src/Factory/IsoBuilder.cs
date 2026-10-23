@@ -50,8 +50,26 @@ public sealed class IsoBuilder<T>
         /// <returns>The builder, to chain.</returns>
         public IsoBuilder<T> To(TValue value)
         {
-            _property.SetValue(_instance, value);
+            _property.SetValue(_instance, ComparedByItsItems(_property.PropertyType, value));
             return _builder;
+        }
+
+        /// <summary>A list given as an array or a <c>List</c> becomes a <see cref="ValueList{T}"/>, as a list read from XML is, so that two objects with the same items are equal.</summary>
+        private static object? ComparedByItsItems(Type memberType, object? value)
+        {
+            if (
+                value is null
+                || !memberType.IsGenericType
+                || memberType.GetGenericTypeDefinition() != typeof(IEnumerable<>)
+            )
+                return value;
+            var element = memberType.GetGenericArguments()[0];
+            if (typeof(ImmutableValueList<>).MakeGenericType(element).IsInstanceOfType(value))
+                return value;
+            return typeof(ValueList<>)
+                .MakeGenericType(element)
+                .GetConstructor([memberType])!
+                .Invoke([value]);
         }
     }
 
