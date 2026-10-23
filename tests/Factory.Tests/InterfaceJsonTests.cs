@@ -5,7 +5,7 @@ using System.Text.Json.Nodes;
 
 namespace BeneficialStrategies.Iso20022.Factory;
 
-/// <summary>The interfaces of the model read and write as JSON in the shape of the records, with the objects made by the factory (#70).</summary>
+/// <summary>The interfaces read and write as JSON in the shape of the records, with the objects made by the factory.</summary>
 public class InterfaceJsonTests
 {
     private static readonly IsoDataFactory Factory = new();
@@ -19,11 +19,10 @@ public class InterfaceJsonTests
         return options;
     }
 
-    private static IMultilateralSettlementRequestV02 ReadXml() =>
-        Iso20022XmlSerializer.TryRead<IMultilateralSettlementRequestV02>(Golden.Xml, Factory).Message!;
+    private static IBatch ReadXml() => Iso20022XmlSerializer.TryRead<IBatch>(Golden.Xml, Factory).Message!;
 
     [Fact]
-    public void AMessageOfTheFactory_IsWrittenAsTheRecordsWriteIt()
+    public void AMessageOfTheFactory_IsWrittenAsTheJsonOfTheGolden()
     {
         var fromInterface = JsonSerializer.Serialize(ReadXml(), Options);
 
@@ -31,35 +30,35 @@ public class InterfaceJsonTests
     }
 
     [Fact]
-    public void AnInterfaceReadFromTheJsonOfARecord_IsTheObjectReadFromTheXmlOfARecord()
+    public void AnInterfaceReadFromTheJson_IsTheObjectReadFromTheXml()
     {
-        var viaJson = JsonSerializer.Deserialize<IMultilateralSettlementRequestV02>(Golden.Json, Options)!;
+        var viaJson = JsonSerializer.Deserialize<IBatch>(Golden.Json, Options)!;
 
         Assert.Equal(ReadXml(), viaJson);
-        Assert.Equal(2, viaJson.SettlementRequest.Single().MovementRecord.Count());
+        Assert.Equal(2, viaJson.Item.Count());
     }
 
     [Fact]
     public void AChoice_IsWrittenWithItsVariantAndReadBackIntoTheSameVariant()
     {
-        var choice = Iso20022XmlSerializer.Read<IAccountIdentification4Choice>(
+        var choice = Iso20022XmlSerializer.Read<IAccountIdentification>(
             XElement.Parse("<Id xmlns=\"urn:test\"><Othr><Id>ABC-1</Id><Issr>BANK</Issr></Othr></Id>"), factory: Factory).Message!;
 
         var json = JsonSerializer.Serialize(choice, Options);
-        var back = JsonSerializer.Deserialize<IAccountIdentification4Choice>(json, Options)!;
+        var back = JsonSerializer.Deserialize<IAccountIdentification>(json, Options)!;
 
         Assert.Equal("Other", JsonNode.Parse(json)!["$type"]!.GetValue<string>());
         Assert.Equal(choice, back);
-        Assert.Equal("BANK", Assert.IsAssignableFrom<Choices.AccountIdentification4Choice.IOther>(back).Issuer!.Value.Value);
+        Assert.Equal("BANK", Assert.IsAssignableFrom<IOther>(back).Issuer!.Value.Value);
     }
 
     [Fact]
     public void AChoiceWithoutItsVariant_IsAJsonExceptionThatSaysWhatIsExpected()
     {
-        var ex = Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<IAccountIdentification4Choice>("{\"value\":\"x\"}", Options));
+        var ex = Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<IAccountIdentification>("{\"value\":\"x\"}", Options));
         Assert.Contains("$type", ex.Message);
 
-        ex = Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<IAccountIdentification4Choice>("{\"$type\":\"Nope\"}", Options));
+        ex = Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<IAccountIdentification>("{\"$type\":\"Nope\"}", Options));
         Assert.Contains("Other", ex.Message);
     }
 
@@ -67,33 +66,33 @@ public class InterfaceJsonTests
     public void ABadValue_IsAJsonExceptionThatNamesTheMember()
     {
         var json = JsonNode.Parse(Golden.Json)!;
-        json["group_header"]!["creation_date_time"] = "2026-13-45";
+        json["header"]!["created"] = "2026-13-45";
 
-        var ex = Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<IMultilateralSettlementRequestV02>(json.ToJsonString(), Options));
+        var ex = Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<IBatch>(json.ToJsonString(), Options));
 
-        Assert.Contains("creation_date_time", ex.Message);
+        Assert.Contains("created", ex.Message);
     }
 
     [Fact]
     public void ARequiredMemberThatIsMissing_IsAJsonException()
     {
         var json = JsonNode.Parse(Golden.Json)!;
-        ((JsonObject)json).Remove("group_header");
+        ((JsonObject)json).Remove("header");
 
-        var ex = Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<IMultilateralSettlementRequestV02>(json.ToJsonString(), Options));
+        var ex = Assert.Throws<JsonException>(() => JsonSerializer.Deserialize<IBatch>(json.ToJsonString(), Options));
 
-        Assert.Contains("group_header", ex.Message);
+        Assert.Contains("header", ex.Message);
     }
 
     [Fact]
     public void AnAbsentList_IsEmpty()
     {
         var json = JsonNode.Parse(Golden.Json)!;
-        ((JsonObject)json["settlement_request"]![0]!).Remove("movement_record");
+        ((JsonObject)json).Remove("item");
 
-        var message = JsonSerializer.Deserialize<IMultilateralSettlementRequestV02>(json.ToJsonString(), Options)!;
+        var message = JsonSerializer.Deserialize<IBatch>(json.ToJsonString(), Options)!;
 
-        Assert.Empty(message.SettlementRequest.Single().MovementRecord);
+        Assert.Empty(message.Item);
     }
 
     [Fact]
@@ -104,7 +103,7 @@ public class InterfaceJsonTests
 
         var json = JsonSerializer.Serialize(message, camel);
 
-        Assert.NotNull(JsonNode.Parse(json)!["groupHeader"]);
-        Assert.Equal(message, JsonSerializer.Deserialize<IMultilateralSettlementRequestV02>(json, camel));
+        Assert.NotNull(JsonNode.Parse(json)!["header"]);
+        Assert.Equal(message, JsonSerializer.Deserialize<IBatch>(json, camel));
     }
 }

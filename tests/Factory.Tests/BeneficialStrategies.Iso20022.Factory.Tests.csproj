@@ -1,8 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- The Factory package also targets netstandard2.0 (run on net48 by NetStandard.Tests); these tests need the records, to compare with, and the validators, which are net8.0 and net10.0. -->
+    <!-- The same targets as the package, so each build is run and not only compiled. -->
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <!-- .NET Framework 4.8 runs the netstandard2.0 build of the Factory; it needs Windows (CI has a job for it) -->
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows')) Or '$(BuildNet48)' == 'true'">$(TargetFrameworks);net48</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>BeneficialStrategies.Iso20022.Factory</RootNamespace>
@@ -11,7 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="11.*" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
@@ -26,9 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Factory\BeneficialStrategies.Iso20022.Factory.csproj" />
-    <ProjectReference Include="..\FluentValidation\BeneficialStrategies.Iso20022.FluentValidation.csproj" />
-    <ProjectReference Include="..\Samples\BeneficialStrategies.Iso20022.Samples.csproj" />
+    <ProjectReference Include="..\..\src\Factory\BeneficialStrategies.Iso20022.Factory.csproj" />
+  </ItemGroup>
+
+  <!-- the tests use language and library features that .NET Framework lacks -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="Polyfill" Version="11.*" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>

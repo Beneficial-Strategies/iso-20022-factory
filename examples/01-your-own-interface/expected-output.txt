@@ -1,0 +1,9 @@
+Acme Corp pays Shared
+True
+IMyMessage_1 { Name = Acme Corp, ChargeBearer = Shared }
+<Document xmlns="urn:example:xmpl.001.001.01">
+  <Party>
+    <Name>Acme Corp</Name>
+    <ChargeBearer>SHAR</ChargeBearer>
+  </Party>
+</Document>
