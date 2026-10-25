@@ -2,6 +2,11 @@
 
 The versions of this package have three parts, `design.breaking.compatible`: the first changes with a redesign, the second with a change that breaks existing users, the third with every other change. Newest first. Each entry is written from the issues closed since the previous release.
 
+## 1.0.0 (2026-10-25)
+
+* Added: First stable release: the code of 1.0.0-alpha, depending on the stable Primitives 1.1.1 or later (#11).
+* Changed: The README links to the packages by the names they have now (#2).
+
 ## 1.0.0-alpha (2026-10-23)
 
 * Changed: The package lives in its own repository, with its history, and is versioned and released independently of the other packages; it uses the published `BeneficialStrategies.Iso20022.Primitives` package, from 1.0.0-alpha up to the next breaking change.
