@@ -10,14 +10,6 @@ It rests on the idea behind the whole family: the **interfaces are the contract*
 
 It is not specific to ISO's own messages: it makes an object for any interface that follows the pattern, an interface of your own with the primitive types for members. It depends only on [BeneficialStrategies.Iso20022.Primitives](https://www.nuget.org/packages/BeneficialStrategies.Iso20022.Primitives), and targets netstandard2.0, net8.0 and net10.0.
 
-## Install
-
-```
-dotnet add package BeneficialStrategies.Iso20022.Factory --prerelease
-```
-
-The package is in alpha, so the command asks for a prerelease version. Three examples follow, each a step further, and each using nothing but this package.
-
 ## How to use
 
 ### Your own interface
@@ -124,11 +116,11 @@ Try the [project](https://github.com/Beneficial-Strategies/iso-20022-factory/tre
 ## More
 
 * Documentation, release notes and issues: https://github.com/Beneficial-Strategies/iso-20022-factory
-* License: MIT. Status: alpha.
+* License: MIT. Status: stable.
 
 ### The interfaces of ISO's own messages
 
-Add the package that has them, and ask for a message: `dotnet add package BeneficialStrategies.Iso20022.Messages --prerelease`, then `Iso20022XmlSerializer.TryRead<IFIToFIPaymentCancellationRequestV10>(xml, factory)`. Everything is as above, for a message with a deep tree of components: it reads, compares by value, and writes back to XML that reads into an equal object. If the document is wrong, the result lists every problem and no object is made. The validators of [BeneficialStrategies.Iso20022.Messages.Validation](https://www.nuget.org/packages/BeneficialStrategies.Iso20022.Messages.Validation) are written for the interfaces, so they accept the object. To read XML and validate it in one call, or queue payloads, see [Validation.Xml](https://www.nuget.org/packages/BeneficialStrategies.Iso20022.Validation.Xml) and [Validation.Xml.Payloads](https://www.nuget.org/packages/BeneficialStrategies.Iso20022.Validation.Xml.Payloads), which take the factory too.
+Add the package that has them, and ask for a message: `dotnet add package BeneficialStrategies.Iso20022.Messages`, then `Iso20022XmlSerializer.TryRead<IFIToFIPaymentCancellationRequestV10>(xml, factory)`. Everything is as above, for a message with a deep tree of components: it reads, compares by value, and writes back to XML that reads into an equal object. If the document is wrong, the result lists every problem and no object is made. The validators of [BeneficialStrategies.Iso20022.Messages.Validation](https://www.nuget.org/packages/BeneficialStrategies.Iso20022.Messages.Validation) are written for the interfaces, so they accept the object. To read XML and validate it in one call, or queue payloads, see [Validation.Xml](https://www.nuget.org/packages/BeneficialStrategies.Iso20022.Validation.Xml) and [Validation.Xml.Payloads](https://www.nuget.org/packages/BeneficialStrategies.Iso20022.Validation.Xml.Payloads), which take the factory too.
 
 ### What it costs
 
