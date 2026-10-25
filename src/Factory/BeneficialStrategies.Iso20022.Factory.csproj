@@ -32,7 +32,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
     <!-- From the lowest version that works to just below the next breaking change. -->
-    <PackageReference Include="BeneficialStrategies.Iso20022.Primitives" Version="[1.1.1, 1.2.0-a)" />
+    <PackageReference Include="BeneficialStrategies.Iso20022.Primitives" Version="[1.1.1, 1.2.0)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
